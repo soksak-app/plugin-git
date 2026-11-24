@@ -5,6 +5,9 @@ root=$(git rev-parse --show-toplevel) || exit 1
 zero=0000000000000000000000000000000000000000
 while read -r local_ref local_sha remote_ref remote_sha; do
   [ "$local_sha" = "$zero" ] && continue
-  if [ "$remote_sha" = "$zero" ]; then base=origin/main; else base=$remote_sha; fi
-  make -C "$root" check-push RANGE="$base..$local_sha" </dev/null || exit 1
+  # The first push to an empty repository has no origin/main, so the range is every commit of the pushed ref.
+  if [ "$remote_sha" != "$zero" ]; then range="$remote_sha..$local_sha"
+  elif git rev-parse -q --verify origin/main >/dev/null; then range="origin/main..$local_sha"
+  else range="$local_sha"; fi
+  make -C "$root" check-push RANGE="$range" </dev/null || exit 1
 done
