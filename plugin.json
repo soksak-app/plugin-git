@@ -1,0 +1,154 @@
+{
+  "id": "git",
+  "name": "git",
+  "description": "git 설치 여부와 프로젝트 폴더의 git 저장소 상태를 사이드바 섹션에 보여 주고, git 설치 창과 git init을 버튼으로 실행한다.",
+  "sections": [
+    {
+      "id": "git.status",
+      "name": "git",
+      "composition": {
+        "kind": "view",
+        "page": "ui/status.html"
+      },
+      "height": 160
+    }
+  ],
+  "programs": {
+    "git-version": {
+      "program": "git",
+      "args": [
+        "--version"
+      ]
+    },
+    "git-inside-work-tree": {
+      "program": "git",
+      "args": [
+        "rev-parse",
+        "--is-inside-work-tree"
+      ]
+    },
+    "git-init": {
+      "program": "git",
+      "args": [
+        "init"
+      ]
+    },
+    "git-branch": {
+      "program": "git",
+      "args": [
+        "branch",
+        "--show-current"
+      ]
+    },
+    "xcode-select-install": {
+      "program": "xcode-select",
+      "args": [
+        "--install"
+      ]
+    }
+  },
+  "exposes": {
+    "commands": [
+      {
+        "name": "git.install",
+        "description": "Runs xcode-select --install through the declared program, which opens the system dialog that installs the command line developer tools that provide git. Returns null; a failed run is refused with its text.",
+        "params": {
+          "type": "object",
+          "properties": {}
+        },
+        "result": {
+          "type": "null"
+        }
+      },
+      {
+        "name": "git.init",
+        "description": "Runs git init in the project folder through the declared program, then checks the state again. Returns null; a failed run is refused with its text.",
+        "params": {
+          "type": "object",
+          "properties": {}
+        },
+        "result": {
+          "type": "null"
+        }
+      },
+      {
+        "name": "git.check",
+        "description": "Checks again whether git is installed and whether the project folder is a git repository, and shows the result in the section. Returns null.",
+        "params": {
+          "type": "object",
+          "properties": {}
+        },
+        "result": {
+          "type": "null"
+        }
+      }
+    ],
+    "status": [
+      {
+        "name": "git.state",
+        "description": "The last check of the section: whether git is installed and its version, whether the project folder is inside a git repository, its branch (null for a detached HEAD), and the text of a failed check. null before the first check ends.",
+        "schema": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {
+            "git": {
+              "enum": [
+                "installed",
+                "missing",
+                null
+              ]
+            },
+            "version": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "repository": {
+              "enum": [
+                "inside",
+                "outside",
+                null
+              ]
+            },
+            "branch": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "error": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "git",
+            "version",
+            "repository",
+            "branch",
+            "error"
+          ]
+        }
+      }
+    ],
+    "element": [
+      {
+        "name": "git.status.install",
+        "description": "The button of the git section that runs git.install while git is missing."
+      },
+      {
+        "name": "git.status.init",
+        "description": "The button of the git section that runs git.init while the project folder is not a git repository."
+      },
+      {
+        "name": "git.status.check",
+        "description": "The button of the git section that runs git.check."
+      }
+    ]
+  }
+}

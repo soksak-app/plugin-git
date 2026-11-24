@@ -1,0 +1,32 @@
+# git plugin repository 의 test, check 와 pack(docs/features.md). pack 은 pnpm pack 으로 release 를 쓴다.
+.PHONY: install test check pack check-push install-hooks
+
+# test 는 이 plugin 의 테스트만 실행한다. exposure port 테스트는 development dependency @soksak/plugin-api 의 createExpose 를 import 한다.
+# The installation stage (core docs/spec/plugins.md#repositories): it installs the locked dependencies; the tests, checks and packs consume them without installing.
+install:
+	pnpm install --frozen-lockfile
+
+test:
+	pnpm test
+
+# check 는 package.json 이 pin 한 kit release 의 검사를 실행한다. sok-check docs 는 record 를 검사하고, sok-check commands 는
+# command 이름을 검사한다. application 은 release 를 설치할 때 plugin.json 을 검증하고, registry 검사는 release 의 공개 이름을
+# 각 listed core 와 비교한다.
+check:
+	pnpm exec sok-check docs
+	pnpm exec sok-check commands
+
+pack: check
+	@test -n "$(OUT)" || { echo "make pack OUT=<folder>" >&2; exit 2; }
+	pnpm pack --pack-destination $(OUT)
+
+# The checks that a push needs: the commit messages and the checklist history of the pushed range, because a published commit
+# is kept; CI runs the tests and checks on the pushed commits.
+# RANGE holds the commits of the pushed refs; the pre-push hook sets it, and it defaults to origin/main..HEAD.
+check-push:
+	pnpm exec sok-check commits "$(or $(RANGE),origin/main..HEAD)"
+	pnpm exec sok-check docs --range "$(or $(RANGE),origin/main..HEAD)"
+
+# Sets this repository to use .githooks, which checks commit messages and records at commit time.
+install-hooks:
+	@git config core.hooksPath .githooks
