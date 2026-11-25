@@ -86,7 +86,7 @@ test("exposes declares the commands install, init and check without parameters, 
 
 test("package.json names the plugin, its repository and the engine range of core 0.0.53", () => {
   assert.equal(pkg.name, "@soksak/plugin-git");
-  assert.equal(pkg.version, "0.0.1");
+  assert.equal(pkg.version, "0.0.2");
   assert.equal(pkg.private, true);
   assert.equal(pkg.type, "module");
   assert.equal(pkg.repository.url, "git+https://github.com/soksak-app/plugin-git.git");
